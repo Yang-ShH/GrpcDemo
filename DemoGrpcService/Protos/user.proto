@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option csharp_namespace = "DemoGrpcService.Protos";
+
+package user;
+
+service User {
+  // Sends a greeting
+  rpc GetUserInfo (UserInfoRequest) returns (UserInfoResult);
+}
+
+message UserInfoRequest {
+  string UserName = 1;
+  int32 UserAge = 2;
+}
+
+// The response message containing the greetings.
+message UserInfoResult {
+  string UserName = 1;
+  int32 UserAge = 2;
+  string Address = 3;
+}
