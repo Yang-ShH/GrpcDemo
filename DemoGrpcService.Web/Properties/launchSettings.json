@@ -11,7 +11,7 @@
     "DemoGrpcService.Web": {
       "commandName": "Project",
       "dotnetRunMessages": true,
-      "launchBrowser": true,
+      "launchBrowser": false,
       "applicationUrl": "http://localhost:5132;https://localhost:5134",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
