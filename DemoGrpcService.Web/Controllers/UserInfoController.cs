@@ -25,16 +25,19 @@ namespace DemoGrpcService.Web.Controllers
         }
 
         [HttpGet]
-        //[ActionName("getuserinfo")]
-        public Task<UserInfoResult> GetUserInfo()
+        [ActionName("get_redis")]
+        public Task<UserInfoRequest> GetRedis([FromQuery(Name = "user_name")] string userName)
         {
-            Console.WriteLine($"收到客户端调用GetUserInfo请求，请求name:1,age:2");
-            return Task.FromResult(new UserInfoResult
-            {
-                UserName = $"姓名：",
-                UserAge = 1,
-                Address = "成都"
-            });
+            Console.WriteLine($"收到客户端调用GetRedis请求，请求user_name:{userName}");
+            return Task.FromResult(_userInfo.GetRedis<UserInfoRequest>(userName));
+        }
+
+        [HttpPost]
+        [ActionName("set_redis")]
+        public void SetRedis([FromBody] UserInfoRequest request)
+        {
+            Console.WriteLine($"收到客户端调用SetRedis请求，请求name:{request.UserName},age:{request.UserAge}");
+            _userInfo.SetRedis(request.UserName, request);
         }
     }
 }

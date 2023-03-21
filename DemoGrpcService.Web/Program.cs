@@ -1,7 +1,9 @@
 using AspectCore.Extensions.DependencyInjection;
+using DemoGrpcService.Web.BaseService.Cache.Interface;
+using DemoGrpcService.Web.BaseService.Cache.Services;
 using DemoGrpcService.Web.BaseService.Interface;
 using DemoGrpcService.Web.BaseService.Services;
-using DemoGrpcService.Web.Services;
+using DemoGrpcService.Web.GrpcServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +13,7 @@ builder.Services.AddGrpc();
 //builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<IUserInfo, UserInfoService>();
+builder.Services.AddScoped<IRedisHelper>(im => new RedisHelperService(builder.Configuration["RedisConnection"]));
 
 //builder.Host.UseServiceProviderFactory(new DynamicProxyServiceProviderFactory());
 

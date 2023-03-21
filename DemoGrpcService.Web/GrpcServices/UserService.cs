@@ -1,8 +1,7 @@
-﻿
-using DemoGrpcService.Web.Protos;
+﻿using DemoGrpcService.Web.Protos;
 using Grpc.Core;
 
-namespace DemoGrpcService.Web.Services
+namespace DemoGrpcService.Web.GrpcServices
 {
     public class UserService : User.UserBase
     {
