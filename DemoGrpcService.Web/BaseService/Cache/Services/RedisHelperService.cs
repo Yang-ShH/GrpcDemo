@@ -59,6 +59,19 @@ namespace DemoGrpcService.Web.BaseService.Cache.Services
             return _connection;
         }
 
+        public IDatabase GetDatabase(int dbIndex = 0)
+        {
+            int num = dbIndex > 0 ? dbIndex : _options.DefaultDatabase.GetValueOrDefault();
+            IDatabase database1;
+            if (_dbDictionary.TryGetValue(num, out database1))
+            {
+                return database1;
+            }
+            IDatabase database2 = _connection.GetDatabase(num);
+            _dbDictionary.TryAdd(num, database2);
+            return database2;
+        }
+
         private void MuxerConfigurationChanged(object sender, EndPointEventArgs e)
         {
         }
@@ -88,9 +101,10 @@ namespace DemoGrpcService.Web.BaseService.Cache.Services
             return CommonMethod.JsonDeserialize<T>((string)GetDatabase().StringGet(key));
         }
 
-        public Task<T> GetAsync<T>(string key)
+        public async Task<T> GetAsync<T>(string key)
         {
-            throw new NotImplementedException();
+            var value = await GetDatabase().StringGetAsync(key);
+            return CommonMethod.JsonDeserialize<T>((string)value);
         }
 
         public void Set<T>(string key, T value, TimeSpan expireTimeSpan = default(TimeSpan))
@@ -106,127 +120,141 @@ namespace DemoGrpcService.Web.BaseService.Cache.Services
             
         }
 
-        public Task SetAsync<T>(string key, T value, TimeSpan expireTimeSpan = default(TimeSpan))
+        public async Task SetAsync<T>(string key, T value, TimeSpan expireTimeSpan = default(TimeSpan))
         {
-            throw new NotImplementedException();
+            if (expireTimeSpan.TotalSeconds > 0.0)
+            {
+                await GetDatabase().StringSetAsync(key, CommonMethod.JsonSerialize(value), expireTimeSpan);
+            }
+            else
+            {
+                await GetDatabase().StringSetAsync(key, CommonMethod.JsonSerialize(value));
+            }
         }
 
         public bool Remove(string key)
         {
-            throw new NotImplementedException();
+            return GetDatabase().KeyDelete((RedisKey) key);
         }
 
         public Task<bool> RemoveAsync(string key)
         {
-            throw new NotImplementedException();
+            return GetDatabase().KeyDeleteAsync((RedisKey) key);
         }
 
-        public Task ListLeftPushAsync<T>(string key, T value)
+        public async Task ListLeftPushAsync<T>(string key, T value)
         {
-            throw new NotImplementedException();
+            await GetDatabase().ListLeftPushAsync((RedisKey) key, (RedisValue) CommonMethod.JsonSerialize(value));
         }
 
-        public Task ListRightPushAsync<T>(string key, T value)
+        public async Task ListRightPushAsync<T>(string key, T value)
         {
-            throw new NotImplementedException();
+            await GetDatabase().ListRightPushAsync((RedisKey)key, (RedisValue)CommonMethod.JsonSerialize(value));
         }
 
-        public Task<T> ListLeftPopAsync<T>(string key)
+        public async Task<T> ListLeftPopAsync<T>(string key)
         {
-            throw new NotImplementedException();
+            var value = await GetDatabase().ListLeftPopAsync((RedisKey) key);
+            T obj = CommonMethod.JsonDeserialize<T>((string) value);
+            return obj;
         }
 
-        public Task<T> ListRightPopAsync<T>(string key)
+        public async Task<T> ListRightPopAsync<T>(string key)
         {
-            throw new NotImplementedException();
+            var value = await GetDatabase().ListRightPopAsync((RedisKey) key);
+            T obj = CommonMethod.JsonDeserialize<T>((string) value);
+            return obj;
         }
 
         public T ListRightPop<T>(string key)
         {
-            throw new NotImplementedException();
+            var value = GetDatabase().ListRightPop((RedisKey) key);
+            T obj = CommonMethod.JsonDeserialize<T>((string) value);
+            return obj;
         }
 
         public T ListLeftPop<T>(string key)
         {
-            throw new NotImplementedException();
+            var value = GetDatabase().ListLeftPop((RedisKey) key);
+            T obj = CommonMethod.JsonDeserialize<T>((string) value);
+            return obj;
         }
 
         public long ListRightPush<T>(string key, T value)
         {
-            throw new NotImplementedException();
+            return GetDatabase().ListRightPush((RedisKey)key, (RedisValue)CommonMethod.JsonSerialize(value));
         }
 
         public long ListLeftPush<T>(string key, T value)
         {
-            throw new NotImplementedException();
+            return GetDatabase().ListLeftPush((RedisKey)key, (RedisValue)CommonMethod.JsonSerialize(value));
         }
 
         public bool HashSet<T>(string redisKey, string hashField, T value)
         {
-            throw new NotImplementedException();
+            return GetDatabase().HashSet((RedisKey) redisKey, (RedisValue) hashField, (RedisValue) CommonMethod.JsonSerialize(value));
         }
 
         public long HashDelete(string redisKey, params string[] hashFields)
         {
-            throw new NotImplementedException();
+            return GetDatabase().HashDelete((RedisKey)redisKey, hashFields.Select(e => (RedisValue)e).ToArray());
         }
 
         public List<T> HashGetAllValue<T>(string redisKey)
         {
-            throw new NotImplementedException();
+            return GetDatabase().HashGetAll((RedisKey) redisKey).Select(e => CommonMethod.JsonDeserialize<T>(e.Value))
+                .ToList();
         }
 
         public T HashGet<T>(string redisKey, string hashField)
         {
-            throw new NotImplementedException();
+            var value = GetDatabase().HashGet((RedisKey) redisKey, (RedisValue) hashField);
+            return CommonMethod.JsonDeserialize<T>((string)value);
         }
 
         public bool Exists(string key)
         {
-            throw new NotImplementedException();
+            return GetDatabase().KeyExists((RedisKey) key);
         }
 
         public void RemoveRange(string[] keys)
         {
-            throw new NotImplementedException();
+            GetDatabase().KeyDelete(keys.Select(e => (RedisKey) e).ToArray());
         }
 
-        public Task<long> RemoveRangeAsync(string[] keys)
+        public async Task<long> RemoveRangeAsync(string[] keys)
         {
-            throw new NotImplementedException();
+            var value = await GetDatabase().KeyDeleteAsync(keys.Select(e => (RedisKey) e).ToArray());
+            return value;
         }
 
-        public bool SetNx(string key, string value)
+        public bool SetNx(string key, string value, TimeSpan expireTimeSpan = default(TimeSpan))
         {
-            throw new NotImplementedException();
-        }
-
-        public IDatabase GetDatabase(int dbIndex = 0)
-        {
-            int num = dbIndex > 0 ? dbIndex : _options.DefaultDatabase.GetValueOrDefault();
-            IDatabase database1;
-            if (_dbDictionary.TryGetValue(num, out database1))
+            if (expireTimeSpan.TotalSeconds > 0.0)
             {
-                return database1;
+                return GetDatabase().StringSet((RedisKey)key, (RedisValue)value, expireTimeSpan, When.NotExists);
             }
-            IDatabase database2 = _connection.GetDatabase(num);
-            _dbDictionary.TryAdd(num, database2);
-            return database2;
+            else
+            {
+                return GetDatabase().StringSet((RedisKey)key, (RedisValue)value, null, When.NotExists);
+            }
         }
+
+        
 
         public IServer GetServer(string host, int port)
         {
-            throw new NotImplementedException();
+            return _connection.GetServer(host, port);
         }
 
         public long Publish(string channel, string message)
         {
-            throw new NotImplementedException();
+            return _connection.GetSubscriber().Publish((RedisChannel)channel, (RedisValue)message);
         }
 
         public void Subscribe(string channelFrom)
         {
-            throw new NotImplementedException();
+            _connection.GetSubscriber().Subscribe((RedisChannel)channelFrom, (Action<RedisChannel, RedisValue>)((channel, message) => Console.WriteLine((string)message)));
         }
     }
 }

@@ -25,11 +25,22 @@ namespace DemoGrpcService.Web.BaseService.Services
 
         public T GetRedis<T>(string redisKey)
         {
+            //{
+            //    // test
+            //    var hashV = _redisHelper.HashGet<T>("HashKey", "HashField");
+            //    var listRightPop = _redisHelper.ListRightPop<string>("ListKey");
+            //}
             return _redisHelper.Get<T>(redisKey);
         }
 
         public void SetRedis<T>(string redisKey, T value, TimeSpan timeSpan = default(TimeSpan))
         {
+            //{
+            //    // test
+            //    _redisHelper.HashSet("HashKey", "HashField", value);
+            //    _redisHelper.ListLeftPush("ListKey", "left push 1");
+            //    _redisHelper.SetNx("SetNxKey", "value", TimeSpan.FromSeconds(60));
+            //}
             _redisHelper.Set(redisKey, value, timeSpan);
         }
     }

@@ -46,7 +46,7 @@ namespace DemoGrpcService.Web.BaseService.Cache.Interface
 
         Task<long> RemoveRangeAsync(string[] keys);
 
-        bool SetNx(string key, string value);
+        bool SetNx(string key, string value, TimeSpan expireTimeSpan = default(TimeSpan));
 
         IDatabase GetDatabase(int dbIndex = 0);
 
