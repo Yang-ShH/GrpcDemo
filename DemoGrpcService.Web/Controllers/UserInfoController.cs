@@ -1,4 +1,5 @@
 ﻿using DemoGrpcService.Web.BaseService.Interface;
+using DemoGrpcService.Web.Entities;
 using DemoGrpcService.Web.Protos;
 using Microsoft.AspNetCore.Mvc;
 
@@ -38,6 +39,14 @@ namespace DemoGrpcService.Web.Controllers
         {
             Console.WriteLine($"收到客户端调用SetRedis请求，请求name:{request.UserName},age:{request.UserAge}");
             _userInfo.SetRedis(request.UserName, request);
+        }
+
+        [HttpGet]
+        [ActionName("get_device")]
+        public Task<Device> GetDevice([FromQuery(Name = "cu")] int cu)
+        {
+            Console.WriteLine($"收到客户端调用 GetDevice 请求，请求cu:{cu}");
+            return Task.FromResult(_userInfo.GetDevice(cu));
         }
     }
 }
