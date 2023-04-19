@@ -11,11 +11,14 @@ namespace DemoGrpcService.Web.BaseService.Services
     {
         private readonly IRedisHelper _redisHelper;
         private readonly ISqlSugarClient _dbContext;
+        private readonly ILogger<UserInfoService> _logger;
         public UserInfoService(IRedisHelper redisHelper,
-            ISqlSugarClient dbContext)
+            ISqlSugarClient dbContext,
+            ILogger<UserInfoService> logger)
         {
             _redisHelper = redisHelper;
             _dbContext = dbContext;
+            _logger = logger;
         }
 
         public UserInfoResult GetUserInfo(UserInfoRequest userInfoRequest)
@@ -55,11 +58,11 @@ namespace DemoGrpcService.Web.BaseService.Services
             timer.Start();
             var device = _dbContext.Queryable<Device>().First(e => e.Cu == cu);
             timer.Stop();
-            Console.WriteLine($"依据cu查询查询耗时：{timer.Elapsed.TotalMilliseconds} 毫秒");
+            _logger.LogInformation($"依据cu查询查询耗时：{timer.Elapsed.TotalMilliseconds} 毫秒");
             timer.Restart();
             var temp = _dbContext.Queryable<Device>().InSingle(12);
             timer.Stop();
-            Console.WriteLine($"依据主键id查询查询耗时：{timer.Elapsed.TotalMilliseconds} 毫秒");
+            _logger.LogInformation($"依据主键id查询查询耗时：{timer.Elapsed.TotalMilliseconds} 毫秒");
             return device;
         }
     }
