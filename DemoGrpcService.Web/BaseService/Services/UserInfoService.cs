@@ -4,6 +4,7 @@ using DemoGrpcService.Web.BaseService.Interface;
 using DemoGrpcService.Web.Entities;
 using DemoGrpcService.Web.Protos;
 using SqlSugar;
+using User = DemoGrpcService.Web.Entities.User;
 
 namespace DemoGrpcService.Web.BaseService.Services
 {
@@ -50,6 +51,26 @@ namespace DemoGrpcService.Web.BaseService.Services
             //    _redisHelper.SetNx("SetNxKey", "value", TimeSpan.FromSeconds(60));
             //}
             _redisHelper.Set(redisKey, value, timeSpan);
+        }
+
+        public User GetUser(string name)
+        {
+            var user = _dbContext.Queryable<User>().First(x => x.Name == name);
+            return user;
+        }
+
+        public int InsertUser(User user)
+        {
+            var result = _dbContext.Insertable<User>(user).ExecuteCommand();
+            return result;
+        }
+
+        public int UpdateUserAge(string name, short age)
+        {
+            var user = _dbContext.Queryable<User>().First(x => x.Name == name);
+            user.Age = age;
+            var result = _dbContext.Updateable<User>(user).ExecuteCommand();
+            return result;
         }
 
         public Device GetDevice(int cu)

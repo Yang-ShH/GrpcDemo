@@ -70,5 +70,40 @@ namespace DemoGrpcService.Web.Controllers
             _logger.LogTrace($"收到客户端调用 GetDevice 请求，请求cu:{cu}");
             return Task.FromResult(_userInfo.GetDevice(cu));
         }
+        /// <summary>
+        /// 从数据库获取user
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [ActionName("get_user")]
+        public Task<Entities.User> GetUser([FromQuery(Name = "name")] string name)
+        {
+            return Task.FromResult(_userInfo.GetUser(name));
+        }
+
+        /// <summary>
+        /// 插入user
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [ActionName("insert_user")]
+        public Task<int> InsertUser([FromBody] Entities.User user)
+        {
+            return Task.FromResult(_userInfo.InsertUser(user));
+        }
+
+        /// <summary>
+        /// 更新user
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [ActionName("update_user")]
+        public Task<int> UpdateUser([FromBody] Entities.User user)
+        {
+            return Task.FromResult(_userInfo.UpdateUserAge(user.Name, user.Age));
+        }
     }
 }

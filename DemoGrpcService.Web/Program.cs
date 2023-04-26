@@ -1,5 +1,6 @@
 using System.Reflection;
 using AspectCore.Extensions.DependencyInjection;
+using Autofac.Extensions.DependencyInjection;
 using DemoGrpcService.Web.BaseService.Cache.Interface;
 using DemoGrpcService.Web.BaseService.Cache.Services;
 using DemoGrpcService.Web.BaseService.Interface;
@@ -30,7 +31,7 @@ builder.Services.AddScoped<ISqlSugarClient>(s =>
 {
     var sqlSugar = new SqlSugarClient(new ConnectionConfig()
         {
-            DbType = DbType.PostgreSQL,
+            DbType = (DbType)Enum.Parse(typeof(DbType), builder.Configuration["DbType"]),
             ConnectionString = builder.Configuration["DbConnection"],
             IsAutoCloseConnection = true,
         },
@@ -59,7 +60,7 @@ builder.Services.AddScoped<ISqlSugarClient>(s =>
 });
 
 //builder.Host.UseServiceProviderFactory(new DynamicProxyServiceProviderFactory());
-
+builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
